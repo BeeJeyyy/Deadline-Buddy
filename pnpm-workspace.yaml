@@ -1,4 +1,4 @@
 git allowBuilds:
-  core-js: false
+  core-js: true
   sharp: false
-  unrs-resolver: false
+  unrs-resolver: true
