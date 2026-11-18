@@ -10,7 +10,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const pendingInvite = (await cookies()).get("pending_invite")?.value;
   if (pendingInvite) redirect(`/join/${encodeURIComponent(pendingInvite)}/accept`);
 
-  const { user, groups, tasks } = await getDashboardData();
+  const { user, groups, tasks, preferences } = await getDashboardData();
   const myTasks = tasks.filter((t) => t.assigneeId === user.id);
   const myTaskCount = myTasks.filter((t) => !t.completed).length;
 
@@ -22,6 +22,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         myTaskCount={myTaskCount}
         myTasks={myTasks}
         nowIso={new Date().toISOString()}
+        weekStartsOn={preferences.weekStartsOn}
+        showCalendar={preferences.showSidebarCalendar}
       />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>

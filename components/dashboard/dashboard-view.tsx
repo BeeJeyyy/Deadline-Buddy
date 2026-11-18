@@ -8,7 +8,7 @@ import { computeStats, getGreeting, getMyOpenTasks, summarizeGroup } from "@/lib
 import type { Group, Task, User } from "@/types";
 import { DashboardHeader } from "./dashboard-header";
 import { DueSoon } from "./due-soon";
-import { GroupsSection } from "./group-section";
+import { GroupsSection } from "./groups-section";
 import { NewGroupDialog } from "./new-group-dialog";
 import { ReminderBanner } from "./reminder-banner";
 import { StatsGrid } from "./stats-grid";
@@ -95,13 +95,19 @@ export function DashboardView({
         onNewGroup={() => setNewGroupOpen(true)}
       />
 
-      <div className="mx-auto w-full max-w-6xl space-y-4 p-7">
+      <div className="mx-auto w-full max-w-6xl space-y-4 px-4 py-5 sm:space-y-5 sm:p-6 lg:p-7">
         {showReminders && <ReminderBanner stats={stats} />}
         <StatsGrid stats={stats} />
 
-        <div className="grid gap-8 pt-4 lg:grid-cols-[1fr_340px]">
-          <GroupsSection summaries={summaries} onToggleStar={toggleStar} />
-          <DueSoon tasks={dueSoon} groups={groups} now={now} onToggleTask={toggleTask} />
+        {/* One column until there's room for two (xl). Deadlines come first when stacked, because they
+            are what people open the app for. */}
+        <div className="grid gap-6 pt-2 sm:pt-4 xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-8">
+          <div className="order-last min-w-0 xl:order-none">
+            <GroupsSection summaries={summaries} onToggleStar={toggleStar} />
+          </div>
+          <div className="min-w-0">
+            <DueSoon tasks={dueSoon} groups={groups} now={now} onToggleTask={toggleTask} />
+          </div>
         </div>
       </div>
 

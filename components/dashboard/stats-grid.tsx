@@ -10,11 +10,11 @@ const STAT_LABELS: { key: keyof DashboardStats; label: string }[] = [
 
 export function StatsGrid({ stats }: { stats: DashboardStats }) {
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
       {STAT_LABELS.map(({ key, label }) => (
         <Card key={key} className="gap-1 rounded-xl py-4 shadow-none">
-          <CardContent className="px-5">
-            <p className="text-3xl font-bold tabular-nums">{stats[key]}</p>
+          <CardContent className="px-4 sm:px-5">
+            <p className="text-2xl font-bold tabular-nums sm:text-3xl">{stats[key]}</p>
             <p className="text-sm text-muted-foreground">{label}</p>
           </CardContent>
         </Card>

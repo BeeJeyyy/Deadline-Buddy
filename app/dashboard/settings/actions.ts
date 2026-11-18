@@ -40,13 +40,33 @@ export async function updateDisplayName(rawName: string): Promise<ActionResult> 
 }
 
 export async function updatePreferences(changes: Partial<Preferences>): Promise<ActionResult> {
-  const columns: Record<string, boolean | string> = {};
+  const columns: Record<string, boolean | string | number> = {};
 
-  if (typeof changes.remindDeadlines === "boolean") columns.remind_deadlines = changes.remindDeadlines;
-  if (typeof changes.showCompleted === "boolean") columns.show_completed = changes.showCompleted;
+  const booleans = [
+    ["remindDeadlines", "remind_deadlines"],
+    ["showCompleted", "show_completed"],
+    ["showSidebarCalendar", "show_sidebar_calendar"],
+    ["notifyDueToday", "notify_due_today"],
+    ["notifyDueTomorrow", "notify_due_tomorrow"],
+    ["notifyOverdue", "notify_overdue"],
+  ] as const;
+  for (const [key, column] of booleans) {
+    if (typeof changes[key] === "boolean") columns[column] = changes[key];
+  }
+
   if (changes.startPage !== undefined) {
     if (changes.startPage !== "dashboard" && changes.startPage !== "tasks") return fail("Invalid page.");
     columns.start_page = changes.startPage;
+  }
+  if (changes.weekStartsOn !== undefined) {
+    if (changes.weekStartsOn !== 0 && changes.weekStartsOn !== 1) return fail("Invalid first day of the week.");
+    columns.week_starts_on = changes.weekStartsOn;
+  }
+  if (changes.reminderHour !== undefined) {
+    if (!Number.isInteger(changes.reminderHour) || changes.reminderHour < 0 || changes.reminderHour > 23) {
+      return fail("Invalid reminder time.");
+    }
+    columns.reminder_hour = changes.reminderHour;
   }
   if (Object.keys(columns).length === 0) return fail("Nothing to save.");
 

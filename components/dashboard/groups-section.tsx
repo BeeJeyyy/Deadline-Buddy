@@ -21,7 +21,7 @@ export function GroupsSection({ summaries, onToggleStar }: GroupsSectionProps) {
 
   return (
     <section aria-labelledby="groups-heading" className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <h2 id="groups-heading" className="font-semibold">
           Your groups
         </h2>
@@ -31,7 +31,7 @@ export function GroupsSection({ summaries, onToggleStar }: GroupsSectionProps) {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search groups"
           aria-label="Search groups"
-          className="max-w-56 rounded-lg"
+          className="h-10 w-full rounded-lg sm:h-9 sm:max-w-56"
         />
       </div>
 

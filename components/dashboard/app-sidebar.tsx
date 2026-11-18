@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Check, LayoutGrid, LogOut, Plus, SlidersHorizontal, SquareCheckBig } from "lucide-react";
@@ -20,11 +20,12 @@ import {
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { signOut } from "@/app/dashboard/actions";
 import { NewGroupDialog } from "@/components/dashboard/new-group-dialog";
 import { SidebarCalendar } from "@/components/dashboard/sidebar-calendar";
-import type { Group, Task, User } from "@/types";
+import type { Group, Task, User, WeekStart } from "@/types";
 
 interface AppSidebarProps {
   user: User;
@@ -33,6 +34,10 @@ interface AppSidebarProps {
   /** Tasks assigned to the signed-in user; they fill the deadline calendar. */
   myTasks: Task[];
   nowIso: string;
+  /** From Settings → Week starts on. 0 = Sunday, 1 = Monday. */
+  weekStartsOn: WeekStart;
+  /** From Settings → Show deadline calendar. */
+  showCalendar: boolean;
 }
 
 const NAV_ITEMS = [
@@ -54,10 +59,20 @@ function isNavActive(pathname: string, href: string) {
   return pathname.startsWith(href);
 }
 
-export function AppSidebar({ user, groups, myTaskCount, myTasks, nowIso }: AppSidebarProps) {
+export function AppSidebar({ user, groups, myTaskCount, myTasks, nowIso, weekStartsOn, showCalendar }: AppSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [newGroupOpen, setNewGroupOpen] = useState(false);
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  // On phones and tablets the sidebar is a drawer on top of the page. Close it the moment a link is
+  // tapped so the page is visible straight away; the effect also covers links that open other ways.
+  const closeDrawer = () => {
+    if (isMobile) setOpenMobile(false);
+  };
+  useEffect(() => {
+    setOpenMobile(false);
+  }, [pathname, setOpenMobile]);
 
   // While the New group dialog is open, the sidebar fades and blurs along with the rest of the page,
   // so the highlighted item doesn't compete with the dialog.
@@ -83,7 +98,7 @@ export function AppSidebar({ user, groups, myTaskCount, myTasks, nowIso }: AppSi
                 return (
                   <SidebarMenuItem key={href}>
                     <SidebarMenuButton
-                      render={<Link href={href} aria-current={active ? "page" : undefined} />}
+                      render={<Link href={href} aria-current={active ? "page" : undefined} onClick={closeDrawer} />}
                       isActive={active}
                       className={ACTIVE_STYLES + " h-10 rounded-lg font-medium"}
                     >
@@ -117,9 +132,9 @@ export function AppSidebar({ user, groups, myTaskCount, myTasks, nowIso }: AppSi
                 return (
                   <SidebarMenuItem key={group.id}>
                     <SidebarMenuButton
-                      render={<Link href={href} aria-current={active ? "page" : undefined} />}
+                      render={<Link href={href} aria-current={active ? "page" : undefined} onClick={closeDrawer} />}
                       isActive={active}
-                      className={ACTIVE_STYLES + " h-9 rounded-lg text-muted-foreground"}
+                      className={ACTIVE_STYLES + " h-10 rounded-lg text-muted-foreground lg:h-9"}
                     >
                       {group.name}
                     </SidebarMenuButton>
@@ -131,12 +146,20 @@ export function AppSidebar({ user, groups, myTaskCount, myTasks, nowIso }: AppSi
         </SidebarGroup>
 
         {/* mt-auto parks the calendar at the bottom of the sidebar whenever there is room. */}
-        <SidebarGroup className="mt-auto border-t pt-3">
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider">Deadlines</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarCalendar tasks={myTasks} groups={groups} nowIso={nowIso} />
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {showCalendar && (
+          <SidebarGroup className="mt-auto border-t pt-3">
+            <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider">Deadlines</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarCalendar
+                tasks={myTasks}
+                groups={groups}
+                nowIso={nowIso}
+                weekStartsOn={weekStartsOn}
+                onNavigate={closeDrawer}
+              />
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className={`p-4 transition-[filter,opacity] duration-200 ${dim}`}>

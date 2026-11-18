@@ -26,6 +26,12 @@ interface OwnProfileRow extends ProfileRow {
   remind_deadlines: boolean;
   show_completed: boolean;
   start_page: string;
+  week_starts_on: number;
+  show_sidebar_calendar: boolean;
+  notify_due_today: boolean;
+  notify_due_tomorrow: boolean;
+  notify_overdue: boolean;
+  reminder_hour: number;
 }
 
 export interface DashboardData {
@@ -64,7 +70,9 @@ export const getDashboardData = cache(async (): Promise<DashboardData> => {
   const [profileRes, membershipRes, taskRes] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, full_name, email, remind_deadlines, show_completed, start_page")
+      .select(
+        "id, full_name, email, remind_deadlines, show_completed, start_page, week_starts_on, show_sidebar_calendar, notify_due_today, notify_due_tomorrow, notify_overdue, reminder_hour",
+      )
       .eq("id", authUser.id)
       .single(),
     supabase
@@ -89,6 +97,12 @@ export const getDashboardData = cache(async (): Promise<DashboardData> => {
     remindDeadlines: profile.remind_deadlines,
     showCompleted: profile.show_completed,
     startPage: profile.start_page === "tasks" ? "tasks" : "dashboard",
+    weekStartsOn: profile.week_starts_on === 1 ? 1 : 0,
+    showSidebarCalendar: profile.show_sidebar_calendar,
+    notifyDueToday: profile.notify_due_today,
+    notifyDueTomorrow: profile.notify_due_tomorrow,
+    notifyOverdue: profile.notify_overdue,
+    reminderHour: profile.reminder_hour,
   };
   const usersById = new Map<string, User>([[user.id, user]]);
   const groups: Group[] = [];

@@ -31,7 +31,14 @@ export function ReportButton({ groupId }: { groupId: string }) {
   };
 
   return (
-    <Button variant="outline" onClick={handleClick} disabled={busy} title="Download a PDF progress report">
+    <Button
+      variant="outline"
+      onClick={handleClick}
+      disabled={busy}
+      title="Download a PDF progress report"
+      aria-label="Download progress report"
+      className="max-sm:size-10 max-sm:px-0"
+    >
       {busy ? <Loader2 className="animate-spin" /> : <Download />}
       <span className="hidden sm:inline">{busy ? "Preparing…" : "Report"}</span>
     </Button>

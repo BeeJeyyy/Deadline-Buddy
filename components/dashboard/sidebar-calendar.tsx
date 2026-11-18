@@ -9,16 +9,21 @@ import { Button } from "@/components/ui/button";
 import { useNow } from "@/hooks/use-now";
 import { getDueLabel, getTaskStatus } from "@/lib/dashboard";
 import { cn } from "@/lib/utils";
-import type { Group, Task } from "@/types";
+import type { Group, Task, WeekStart } from "@/types";
 
 interface SidebarCalendarProps {
   /** Tasks assigned to the signed-in user (open and done). */
   tasks: Task[];
   groups: Group[];
   nowIso: string;
+  /** 0 = weeks start on Sunday (default), 1 = Monday. */
+  weekStartsOn?: WeekStart;
+  /** Called when a deadline link is tapped (the sidebar uses it to close its mobile drawer). */
+  onNavigate?: () => void;
 }
 
-const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
+const WEEKDAYS_SUNDAY_FIRST = ["S", "M", "T", "W", "T", "F", "S"];
+const WEEKDAYS_MONDAY_FIRST = ["M", "T", "W", "T", "F", "S", "S"];
 const DAY_MS = 86_400_000;
 const MAX_UPCOMING = 4;
 
@@ -72,7 +77,7 @@ const byUrgency = (now: Date) => (a: Task, b: Task) => {
  * A compact month calendar for the sidebar. Days with your open deadlines are filled in,
  * late ones are tinted red, and clicking a day lists what is due. Underneath: your next deadlines.
  */
-export function SidebarCalendar({ tasks, groups, nowIso }: SidebarCalendarProps) {
+export function SidebarCalendar({ tasks, groups, nowIso, weekStartsOn = 0, onNavigate }: SidebarCalendarProps) {
   const now = useNow(nowIso);
   const [monthOffset, setMonthOffset] = useState(0);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
@@ -100,7 +105,9 @@ export function SidebarCalendar({ tasks, groups, nowIso }: SidebarCalendarProps)
 
   const month = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
   // Always 6 weeks, so the calendar doesn't change height from month to month.
-  const gridStart = new Date(month.getFullYear(), month.getMonth(), 1 - month.getDay());
+  const leadingDays = (month.getDay() - weekStartsOn + 7) % 7;
+  const gridStart = new Date(month.getFullYear(), month.getMonth(), 1 - leadingDays);
+  const weekdays = weekStartsOn === 1 ? WEEKDAYS_MONDAY_FIRST : WEEKDAYS_SUNDAY_FIRST;
   const days = Array.from({ length: 42 }, (_, i) => {
     const date = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + i);
     return { date, key: toKey(date), inMonth: date.getMonth() === month.getMonth() };
@@ -157,7 +164,7 @@ export function SidebarCalendar({ tasks, groups, nowIso }: SidebarCalendarProps)
 
       <div>
         <div className="grid grid-cols-7 pb-1 text-center text-[11px] font-medium text-muted-foreground">
-          {WEEKDAYS.map((day, index) => (
+          {weekdays.map((day, index) => (
             <span key={index}>{day}</span>
           ))}
         </div>
@@ -186,7 +193,7 @@ export function SidebarCalendar({ tasks, groups, nowIso }: SidebarCalendarProps)
                 onMouseLeave={() => setHover(null)}
                 onBlur={() => setHover(null)}
                 className={cn(
-                  "relative flex h-8 w-full items-center justify-center rounded-lg text-xs transition-colors",
+                  "relative flex h-9 w-full items-center justify-center rounded-lg text-xs transition-colors lg:h-8",
                   "outline-none focus-visible:ring-2 focus-visible:ring-ring",
                   !inMonth && "text-muted-foreground/40",
                   open.length === 0 && "hover:bg-muted",
@@ -237,7 +244,7 @@ export function SidebarCalendar({ tasks, groups, nowIso }: SidebarCalendarProps)
           ) : (
             <ul className="space-y-0.5">
               {selectedTasks.map((task) => (
-                <DeadlineItem key={task.id} task={task} groupName={groupNames.get(task.groupId)} now={now} />
+                <DeadlineItem key={task.id} task={task} groupName={groupNames.get(task.groupId)} now={now} onNavigate={onNavigate} />
               ))}
             </ul>
           )
@@ -247,12 +254,13 @@ export function SidebarCalendar({ tasks, groups, nowIso }: SidebarCalendarProps)
           <>
             <ul className="space-y-0.5">
               {shownUpcoming.map((task) => (
-                <DeadlineItem key={task.id} task={task} groupName={groupNames.get(task.groupId)} now={now} />
+                <DeadlineItem key={task.id} task={task} groupName={groupNames.get(task.groupId)} now={now} onNavigate={onNavigate} />
               ))}
             </ul>
             {hiddenCount > 0 && (
               <Link
                 href="/dashboard/tasks"
+                onClick={onNavigate}
                 className="block px-1 pt-0.5 text-xs font-medium text-muted-foreground hover:text-foreground"
               >
                 +{hiddenCount} more in My tasks
@@ -333,14 +341,25 @@ function DayHoverCard({
   );
 }
 
-function DeadlineItem({ task, groupName, now }: { task: Task; groupName?: string; now: Date }) {
+function DeadlineItem({
+  task,
+  groupName,
+  now,
+  onNavigate,
+}: {
+  task: Task;
+  groupName?: string;
+  now: Date;
+  onNavigate?: () => void;
+}) {
   const overdue = getTaskStatus(task, now) === "overdue";
 
   return (
     <li>
       <Link
         href={`/dashboard/groups/${task.groupId}`}
-        className="block rounded-lg px-2 py-1.5 transition-colors hover:bg-muted"
+        onClick={onNavigate}
+        className="block rounded-lg px-2 py-2 lg:py-1.5 transition-colors hover:bg-muted"
       >
         <p className={cn("truncate text-sm font-medium", task.completed && "text-muted-foreground line-through")}>
           {task.title}

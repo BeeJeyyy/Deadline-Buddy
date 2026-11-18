@@ -54,8 +54,19 @@ export interface GroupInfo {
 
 export type StartPage = "dashboard" | "tasks";
 
+/** First day of the week in the sidebar calendar: 0 = Sunday, 1 = Monday. */
+export type WeekStart = 0 | 1;
+
 export interface Preferences {
   remindDeadlines: boolean;
   showCompleted: boolean;
   startPage: StartPage;
+  weekStartsOn: WeekStart;
+  showSidebarCalendar: boolean;
+  /** Which deadlines the daily push notification mentions. */
+  notifyDueToday: boolean;
+  notifyDueTomorrow: boolean;
+  notifyOverdue: boolean;
+  /** Local hour (0 to 23) of the daily push notification. */
+  reminderHour: number;
 }
