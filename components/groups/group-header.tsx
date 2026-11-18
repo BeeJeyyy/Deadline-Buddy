@@ -8,11 +8,12 @@ import { ReportButton } from "./report-button";
 interface GroupHeaderProps {
   groupId: string;
   name: string;
+  isAdmin: boolean;
   onInvite: () => void;
   onNewTask: () => void;
 }
 
-export function GroupHeader({ groupId, name, onInvite, onNewTask }: GroupHeaderProps) {
+export function GroupHeader({ groupId, name, isAdmin, onInvite, onNewTask }: GroupHeaderProps) {
   return (
     <header className="sticky top-0 z-10 flex min-h-16 items-center justify-between gap-2 border-b bg-background/90 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/70 sm:min-h-[70px] sm:gap-3 sm:px-7">
       <div className="flex min-w-0 items-center gap-1 sm:gap-3">
