@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Star } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from '@/components/shared/user-avatar';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -49,11 +49,13 @@ export function GroupCard({ summary, onToggleStar }: GroupCardProps) {
         <div className="flex items-center justify-between">
           <div className="flex -space-x-2">
             {members.map((member) => (
-              <Avatar key={member.id} className="size-6 ring-2 ring-background">
-                <AvatarFallback className="bg-primary text-[10px] font-semibold text-primary-foreground">
-                  {member.initials}
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatar
+                key={member.id}
+                user={member}
+                title={member.name}
+                className="size-6 ring-2 ring-background"
+                fallbackClassName="text-[10px]"
+              />
             ))}
           </div>
           {overdueTasks > 0 ? (

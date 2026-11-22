@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Check, LayoutGrid, LogOut, Plus, SlidersHorizontal, SquareCheckBig } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from '@/components/shared/user-avatar';
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -23,6 +23,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { signOut } from "@/app/dashboard/actions";
+import { LinkPending } from "@/components/dashboard/link-pending";
 import { NewGroupDialog } from "@/components/dashboard/new-group-dialog";
 import { SidebarCalendar } from "@/components/dashboard/sidebar-calendar";
 import type { Group, Task, User, WeekStart } from "@/types";
@@ -104,6 +105,7 @@ export function AppSidebar({ user, groups, myTaskCount, myTasks, nowIso, weekSta
                     >
                       <Icon />
                       <span>{label}</span>
+                      <LinkPending />
                     </SidebarMenuButton>
                     {label === "My tasks" && myTaskCount > 0 && (
                       <SidebarMenuBadge className={active ? "text-primary-foreground" : undefined}>
@@ -136,7 +138,8 @@ export function AppSidebar({ user, groups, myTaskCount, myTasks, nowIso, weekSta
                       isActive={active}
                       className={ACTIVE_STYLES + " h-10 rounded-lg text-muted-foreground lg:h-9"}
                     >
-                      {group.name}
+                      <span className="min-w-0 flex-1 truncate">{group.name}</span>
+                      <LinkPending />
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -164,11 +167,7 @@ export function AppSidebar({ user, groups, myTaskCount, myTasks, nowIso, weekSta
 
       <SidebarFooter className={`p-4 transition-[filter,opacity] duration-200 ${dim}`}>
         <div className="flex items-center gap-3 border-t pt-4">
-          <Avatar className="size-9">
-            <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
-              {user.initials}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar user={user} className="size-9" fallbackClassName="text-xs" />
           <div className="min-w-0 flex-1 leading-tight">
             <p className="truncate text-sm font-semibold">{user.name}</p>
             <p className="truncate text-xs text-muted-foreground">{user.email}</p>

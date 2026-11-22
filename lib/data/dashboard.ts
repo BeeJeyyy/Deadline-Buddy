@@ -11,6 +11,7 @@ interface ProfileRow {
   id: string;
   full_name: string | null;
   email: string;
+  avatar_url: string | null;
 }
 
 interface MembershipRow {
@@ -51,7 +52,7 @@ function toUser(profile: ProfileRow): User {
     .slice(0, 2)
     .toUpperCase();
 
-  return { id: profile.id, name, email: profile.email, initials };
+  return { id: profile.id, name, email: profile.email, initials, avatarUrl: profile.avatar_url };
 }
 
 /**
@@ -71,14 +72,14 @@ export const getDashboardData = cache(async (): Promise<DashboardData> => {
     supabase
       .from("profiles")
       .select(
-        "id, full_name, email, remind_deadlines, show_completed, start_page, week_starts_on, show_sidebar_calendar, notify_due_today, notify_due_tomorrow, notify_overdue, reminder_hour",
+        "id, full_name, email, avatar_url, remind_deadlines, show_completed, start_page, week_starts_on, show_sidebar_calendar, notify_due_today, notify_due_tomorrow, notify_overdue, reminder_hour",
       )
       .eq("id", authUser.id)
       .single(),
     supabase
       .from("group_members")
       .select(
-        "starred, group:groups(id, name, members:group_members(user:profiles(id, full_name, email)))",
+        "starred, group:groups(id, name, members:group_members(user:profiles(id, full_name, email, avatar_url)))",
       )
       .eq("user_id", authUser.id),
     supabase

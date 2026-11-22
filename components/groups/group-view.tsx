@@ -37,10 +37,10 @@ export function GroupView({
 }: GroupViewProps) {
   const now = useNow(nowIso);
   const { tasks, setStatus, applyEdit, addTask, unassignMember } = useGroupTasks(initialTasks);
-  // Roles: the group creator is the admin. Only the admin adds, edits and assigns tasks.
+  // The group owner is the admin. Admin: adds tasks, edits their details, moves every task.
+  // Member: can only move the tasks assigned to them.
   const isAdmin = currentUserId === group.ownerId;
   const canEdit = isAdmin;
-  // Members can move only the tasks assigned to them; the admin can move any task.
   const canMoveTask = (task: Task) => isAdmin || task.assigneeId === currentUserId;
 
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -54,15 +54,19 @@ export function GroupView({
   const membersById = useMemo(() => new Map(members.map((m) => [m.id, m])), [members]);
   const progress = useMemo(() => getProgress(tasks), [tasks]);
 
-  const openNewTask = (status: TaskStatus = "todo") => {
-    if (isAdmin) setNewTask({ open: true, status });
-  };
+  const openNewTask = (status: TaskStatus = "todo") => setNewTask({ open: true, status });
 
   return (
     <>
-      <GroupHeader groupId={group.id} name={group.name} isAdmin={isAdmin} onInvite={() => setInviteOpen(true)} onNewTask={() => openNewTask()} />
+      <GroupHeader
+        groupId={group.id}
+        name={group.name}
+        isAdmin={isAdmin}
+        onInvite={() => setInviteOpen(true)}
+        onNewTask={() => openNewTask()}
+      />
 
-      <div className="mx-auto w-full max-w-6xl space-y-5 p-7">
+      <div className="mx-auto w-full max-w-6xl space-y-5 px-4 py-5 sm:p-6 lg:p-7">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <ViewSwitcher value={view} onChange={setView} />
           <ProgressSummary {...progress} />
@@ -109,17 +113,15 @@ export function GroupView({
         )}
       </div>
 
-      {isAdmin && (
-        <NewTaskDialog
-          open={newTask.open}
-          onOpenChange={(open) => setNewTask((prev) => ({ ...prev, open }))}
-          groupId={group.id}
-          status={newTask.status}
-          members={members}
-          currentUserId={currentUserId}
-          onCreated={addTask}
-        />
-      )}
+      <NewTaskDialog
+        open={newTask.open}
+        onOpenChange={(open) => setNewTask((prev) => ({ ...prev, open }))}
+        groupId={group.id}
+        status={newTask.status}
+        members={members}
+        currentUserId={currentUserId}
+        onCreated={addTask}
+      />
       {canEdit && (
         <EditTaskDialog
           key={editingTask?.id ?? "none"}
@@ -130,7 +132,7 @@ export function GroupView({
           onSaved={applyEdit}
         />
       )}
-      <InviteDialog open={inviteOpen} onOpenChange={setInviteOpen} inviteCode={group.inviteCode} />
+      <InviteDialog open={inviteOpen} onOpenChange={setInviteOpen} groupId={group.id} inviteCode={group.inviteCode} isAdmin={isAdmin} />
     </>
   );
 }

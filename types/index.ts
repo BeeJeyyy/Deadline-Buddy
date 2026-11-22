@@ -70,3 +70,11 @@ export interface Preferences {
   /** Local hour (0 to 23) of the daily push notification. */
   reminderHour: number;
 }
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  initials: string;
+  avatarUrl?: string | null;   // ← idagdag ito
+}

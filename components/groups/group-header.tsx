@@ -8,6 +8,7 @@ import { ReportButton } from "./report-button";
 interface GroupHeaderProps {
   groupId: string;
   name: string;
+  /** Only the group admin (owner) can add tasks. */
   isAdmin: boolean;
   onInvite: () => void;
   onNewTask: () => void;
@@ -37,10 +38,12 @@ export function GroupHeader({ groupId, name, isAdmin, onInvite, onNewTask }: Gro
           <Link2 />
           <span className="hidden sm:inline">Invite</span>
         </Button>
-        <Button onClick={onNewTask} aria-label="New task" className="max-sm:size-10 max-sm:px-0">
-          <Plus />
-          <span className="hidden sm:inline">New task</span>
-        </Button>
+        {isAdmin && (
+          <Button onClick={onNewTask} aria-label="New task" className="max-sm:size-10 max-sm:px-0">
+            <Plus />
+            <span className="hidden sm:inline">New task</span>
+          </Button>
+        )}
       </div>
     </header>
   );

@@ -82,7 +82,7 @@ export function TasksView({ groups, initialTasks, nowIso }: TasksViewProps) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] space-y-6 p-7">
+    <div className="mx-auto w-full max-w-[1600px] space-y-6 px-4 py-5 sm:p-6 lg:p-7">
       <TasksSummary summary={summary} />
 
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">

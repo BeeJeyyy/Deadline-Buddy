@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/shared/user-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -18,11 +18,7 @@ interface MemberCardProps {
 export function MemberCard({ member, progress, isYou, isOwner, onRemove }: MemberCardProps) {
   return (
     <Card className="flex-row items-center gap-4 rounded-xl p-4 shadow-none">
-      <Avatar className="size-11">
-        <AvatarFallback className="bg-primary font-semibold text-primary-foreground">
-          {member.initials}
-        </AvatarFallback>
-      </Avatar>
+      <UserAvatar user={member} className="size-11" />
 
       <div className="min-w-0 flex-1 space-y-1.5">
         <div className="flex flex-wrap items-center gap-1.5">

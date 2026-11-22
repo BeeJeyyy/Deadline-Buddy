@@ -13,11 +13,11 @@ const ITEMS = [
 
 export function TasksSummary({ summary }: TasksSummaryProps) {
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
       {ITEMS.map(({ key, label }) => (
         <Card key={key} className="gap-1 rounded-xl py-4 shadow-none">
-          <CardContent className="px-5">
-            <p className="text-3xl font-bold tabular-nums">{summary[key]}</p>
+          <CardContent className="px-4 sm:px-5">
+            <p className="text-2xl font-bold tabular-nums sm:text-3xl">{summary[key]}</p>
             <p className="text-sm text-muted-foreground">{label}</p>
           </CardContent>
         </Card>
